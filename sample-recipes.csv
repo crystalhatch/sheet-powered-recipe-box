@@ -1,0 +1,57 @@
+Name,Type,Favorite,Kids,Want to try,Seasons,Also shown on,Description,Ingredients,Steps,Facts,Note,Created by,ID
+Crusty Garlic Bread,Bread,Yes,,,Year-round,,"Crusty bread grilled with olive oil, rubbed with garlic while hot, finished with flaky salt.","Crusty bread, sliced
+Olive oil
+Garlic cloves, peeled
+Flaky sea salt","**Grill or toast** the bread with olive oil until crisp.
+**Rub** with garlic cloves while it's hot.
+**Finish** with flaky sea salt.","Used in: [[vegetable-soup|Vegetable Soup]]
+Original: Our own recipe",,,garlic-bread
+Vegetable Soup,Soup,Yes,Yes,,"Fall, Winter",,"Root veggies, squash and stewed tomatoes in broth, with crusty garlic bread.","Garlic
+Onion
+Celery
+Carrot
+Parsnip
+Butternut squash
+Potatoes
+Canned stewed tomatoes
+Broth
+Broccoli
+Peas
+## To serve
+[[garlic-bread|Crusty Garlic Bread]]","**Aromatics.** Saute the garlic, onion, celery and carrot in a little olive oil until soft.
+**Simmer.** Add the parsnip, squash, potatoes, tomatoes and broth. Simmer until tender, about 20-25 min.
+**Green veg.** Add the broccoli and peas for the last 5 min.
+**Serve** with [[garlic-bread|Crusty Garlic Bread]].",Serve with: [[garlic-bread|Crusty Garlic Bread]],No amounts in the original; eyeball it.,,vegetable-soup
+Snack Plate Builder,Snack,,,,Year-round,,Pick from each group and a healthy snack plate dinner is done.,"## Protein (pick 2)
+Hard-boiled eggs
+Cheese cubes
+Smoked salmon or tuna
+## Crunch (pick 1)
+Nuts, seed crackers or sourdough
+## Fresh (pick 2)
+Peppers, cucumber, carrots, grapes, apple
+## Briny (pick 1)
+Pickles, olives or pepperoncini
+## Dip (pick 1)
+Hummus, tzatziki or chili oil","**Protein first.** Two proteins make it a meal.
+**Add** fresh and crunch.
+**Finish** with something briny and a dip.","Formula: 2 protein, 1 crunch, 2 fresh, 1 briny, 1 dip",,,snack-plate-builder
+Last Word,Cocktail,,,,Year-round,,"Equal parts gin, Green Chartreuse, maraschino and lime.","3/4 oz London dry gin
+3/4 oz Green Chartreuse
+3/4 oz maraschino liqueur
+3/4 oz lime juice","Shake, strain into a coupe.",Glass: Coupe,,,last-word
+Soft-Boiled Eggs,Temp,,,,Year-round,,"Jammy soft-boiled eggs: 7 minutes, then an ice bath.","Boil: 7 min
+Then: straight into an ice bath","**Boil** the eggs 7 min.
+**Ice bath** right away to stop the cooking.",,,,temp-soft-eggs
+Weeknight Grain Bowls,Dinner,,,Yes,Year-round,,"Mix and match: a grain, a protein, roasted veggies and a dressing.","## Grain (pick one)
+Farro, quinoa or rice
+## Protein (pick one)
+Chicken, salmon or eggs
+## Veggies
+Roasted sweet potato
+Shaved carrot
+Avocado
+## Dressing
+Your favorite","**Prep.** Cook a batch of grain, protein and roasted veggies.
+**Build.** Grain, protein, veggies.
+**Dress** right before eating.","Style: Meal prep, mix and match",,,grain-bowls

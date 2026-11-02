@@ -1,0 +1,369 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+</head>
+<body>
+<title>Our Recipe Box</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Atkinson+Hyperlegible:wght@400;700&display=swap">
+<style>
+/* Light only, on purpose: dark text on white reads best in a bright kitchen. */
+/* Layout: a phone-first recipe box. Home = cards; tap one for a cook view with ingredients you can tick off and short steps. */
+:root{
+  --bg:#ffffff; --surface:#ffffff; --ink:#1d2a20; --muted:#55645a; --line:#dfe5de; --wash:#f4f7f3; --band:#ffffff; --band-line:#dfe5de;
+  --basil:#2f6b3a; --basil-soft:#e2eee1; --chili:#b23a24;
+  --shadow-1:0 1px 2px rgba(29,42,32,.06),0 4px 12px rgba(29,42,32,.07);
+  --shadow-2:0 2px 4px rgba(29,42,32,.08),0 10px 28px rgba(29,42,32,.14);
+  --display:"Bricolage Grotesque",ui-sans-serif,system-ui,sans-serif;
+  --body:"Atkinson Hyperlegible",ui-sans-serif,system-ui,sans-serif;
+}
+:root{color-scheme:light}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:17px;line-height:1.5;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 max(160px, 45vh)}
+.wrap{--gap:24px;max-width:860px;margin:0 auto;display:flex;flex-direction:column;gap:var(--gap)}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;margin:0;line-height:1.1}
+h1{font-size:clamp(2rem,6vw,2.8rem);font-weight:700;letter-spacing:-.01em}
+.sub{color:var(--muted);margin:6px 0 0}
+/* Search bar + category tabs (Airbnb-style pill search, icon tabs with an underline) */
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--band)}
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--band);display:flex;flex-direction:column;gap:18px;padding-top:12px}
+.search{display:flex;align-items:center;gap:12px;width:100%;max-width:640px;background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:6px 8px 6px 20px;box-shadow:var(--shadow-1);transition:box-shadow .2s,border-color .2s}
+.search:focus-within{box-shadow:var(--shadow-2);border-color:var(--ink)}
+.search input:focus,.search input:focus-visible{outline:none;box-shadow:none}
+.search input{-webkit-appearance:none;appearance:none;-webkit-tap-highlight-color:transparent}
+.search .mag{width:20px;height:20px;fill:none;stroke:var(--ink);stroke-width:2.2;stroke-linecap:round;flex:none}
+.search input{all:unset;flex:1;min-width:0;font:inherit;font-size:1rem;padding:12px 0;color:var(--ink)}
+.search input::placeholder{color:var(--muted)}
+.search input::-webkit-search-cancel-button{display:none}
+.clear{all:unset;cursor:pointer;width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:var(--basil-soft);color:var(--ink);flex:none}
+.clear svg{width:14px;height:14px;stroke:currentColor;stroke-width:2.5;stroke-linecap:round}
+.clear:focus-visible{outline:3px solid var(--basil);outline-offset:2px}
+/* Category bar: sideways only, with fades and arrows that show when there's more to scroll */
+.catwrap{position:relative;box-shadow:inset 0 -1px 0 var(--line)}
+.cats{display:flex;gap:28px;overflow-x:auto;overflow-y:hidden;overscroll-behavior:contain;scroll-behavior:smooth;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.cats::-webkit-scrollbar{display:none}
+.catwrap::before,.catwrap::after{content:"";position:absolute;top:0;bottom:2px;width:56px;pointer-events:none;opacity:0;transition:opacity .2s;z-index:1}
+.catwrap::before{left:0;background:linear-gradient(to right,var(--band) 30%,transparent)}
+.catwrap::after{right:0;background:linear-gradient(to left,var(--band) 30%,transparent)}
+.catwrap.more-left::before,.catwrap.more-right::after{opacity:1}
+.catarrow{all:unset;cursor:pointer;position:absolute;top:0;bottom:2px;width:22px;display:none;place-items:center;z-index:2;color:var(--basil)}
+.catarrow svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round}
+.catarrow.left{left:-20px}.catarrow.right{right:-20px}
+.catwrap.more-left .catarrow.left,.catwrap.more-right .catarrow.right{display:grid}
+.catarrow:focus-visible{outline:3px solid var(--basil);outline-offset:2px}
+.cat{all:unset;cursor:pointer;flex:none;display:flex;flex-direction:column;align-items:center;gap:6px;padding:2px 2px 12px;border-bottom:2px solid transparent;color:var(--muted);font-size:.8rem;font-weight:700;white-space:nowrap;transition:color .15s,border-color .15s}
+.cat svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.cat:hover{color:var(--basil);border-bottom-color:var(--band-line)}
+.cat[aria-pressed="true"]{color:var(--basil);border-bottom-color:var(--basil)}
+.cat:focus-visible{outline:3px solid var(--basil);outline-offset:2px;border-radius:6px}
+.count{margin:0;color:var(--muted);font-size:.9rem}
+/* Search: no box, just the icon, a blinking cursor and light helper text */
+.bar .search{background:var(--surface);border:1px solid var(--line);box-shadow:none;border-radius:999px;padding:2px 8px 2px 16px;max-width:none}
+.bar .search:focus-within{border-color:var(--basil);box-shadow:none}
+.search .mag{stroke:var(--muted)}
+.search input::placeholder{color:#a3aea6;opacity:1}
+.search input{caret-color:var(--basil);font-size:1.05rem}
+@media (prefers-reduced-motion:reduce){.search,.cat,.catwrap::before,.catwrap::after{transition:none}.cats{scroll-behavior:auto}}
+/* Clip sideways overflow without turning the body into its own scroller (that caused the sticky scrolling). */
+body{overflow-x:clip}
+/* Green band behind the title and the sticky search + tabs, full width */
+.top,.bar{box-shadow:0 0 0 100vmax var(--band);clip-path:inset(0 -100vmax)}
+.top{background:var(--band);padding-top:24px;padding-bottom:var(--gap);margin-bottom:calc(-1 * var(--gap))}
+.bar{padding-bottom:0}
+.catwrap{box-shadow:none}
+.bar{border-bottom:1px solid var(--band-line)}
+.back{margin-top:16px}
+html,body{margin:0}
+.top + .bar{padding-top:4px}
+html{overscroll-behavior-y:contain}
+html{scrollbar-width:none}
+html::-webkit-scrollbar,body::-webkit-scrollbar{display:none}
+.cols>section,.head,.facts span{min-width:0;overflow-wrap:anywhere}
+.sechead{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px 12px;margin-bottom:10px}
+.cols .sechead h3{margin:0}
+.copy{all:unset;cursor:pointer;display:inline-flex;align-items:center;gap:6px;font-size:.85rem;font-weight:700;color:var(--ink);border:1px solid var(--line);border-radius:999px;padding:8px 14px;background:var(--surface);white-space:nowrap}
+.copy svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.copy:hover{border-color:var(--ink)}
+.copy.done{background:var(--basil);border-color:var(--basil);color:var(--surface)}
+.copy:focus-visible{outline:3px solid var(--basil);outline-offset:2px}
+.back{padding:8px 0}
+@media (max-width:600px){
+  body{font-size:16px;padding-block:0 max(160px, 45vh)}
+  .wrap{--gap:18px}
+  h1{font-size:1.9rem}
+  .sub{font-size:.95rem;margin-top:4px}
+  .bar{gap:12px;padding-top:8px}
+  .search{max-width:none;gap:10px;padding:2px 6px 2px 14px;box-shadow:0 1px 3px rgba(29,42,32,.08)}
+  .search .mag{width:18px;height:18px}
+  .search input{padding:11px 0}
+  .search input::placeholder{text-overflow:ellipsis}
+  .cats{gap:22px}
+  .catarrow.left{left:-16px}.catarrow.right{right:-16px}
+  .catwrap::before,.catwrap::after{width:40px}
+  .grid{gap:10px}
+  .card{padding:16px;gap:6px}
+  .card h2{font-size:1.15rem}
+  .head h2{font-size:1.7rem}
+  .facts{flex-direction:column;gap:2px}
+  .cols{gap:24px}
+  .ing label{padding:10px 0}
+  .ing input{width:20px;height:20px;margin-top:3px}
+}
+button:focus-visible,input:focus-visible,a:focus-visible,label:focus-within{outline:3px solid var(--basil);outline-offset:2px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px}
+.card{all:unset;box-sizing:border-box;cursor:pointer;display:flex;flex-direction:column;gap:8px;padding:18px;background:var(--surface);border:1px solid var(--line);border-radius:14px}
+.card:hover{border-color:var(--basil);box-shadow:var(--shadow-1)}
+.card:focus-visible{outline:3px solid var(--basil);outline-offset:2px}
+.card h2{font-size:1.3rem;font-weight:700}
+.meta{display:flex;flex-wrap:wrap;gap:6px;font-size:.8rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+.tag{background:var(--basil-soft);color:var(--basil);padding:2px 8px;border-radius:6px;font-weight:700}
+.heart{width:.8em;height:.8em;fill:var(--chili);margin-left:.35em;vertical-align:baseline;flex:none}
+.tag.new{background:var(--chili);color:var(--surface)}
+.tag.season{background:transparent;color:var(--muted);border:1px solid var(--line)}
+.tag.weekly{background:transparent;color:var(--chili);border:1px solid currentColor}
+.card p{margin:0;color:var(--muted);font-size:.95rem}
+.empty{color:var(--muted)}
+/* cook view */
+.back{all:unset;cursor:pointer;color:var(--basil);font-weight:700}
+.back:focus-visible{outline:3px solid var(--basil);outline-offset:2px}
+.head{display:flex;flex-direction:column;gap:10px}
+.head h2{font-size:clamp(1.8rem,5vw,2.4rem)}
+.facts{display:flex;flex-wrap:wrap;gap:6px 20px;color:var(--muted);font-size:.92rem}
+.facts b{color:var(--ink);font-weight:700}
+a{color:var(--basil);text-decoration-color:color-mix(in srgb,var(--basil) 40%,transparent);text-underline-offset:3px}
+.facts a{font-weight:400;font-size:.88rem}
+.cols{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.4fr);gap:28px;align-items:start}
+@media (max-width:680px){.cols{grid-template-columns:1fr}}
+.cols h3{font-size:.85rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:10px;font-family:var(--body)}
+.ing{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+.ing label{display:flex;gap:10px;align-items:flex-start;padding:8px 0;border-bottom:1px solid var(--line);cursor:pointer}
+.ing input{margin-top:5px;accent-color:var(--basil);width:18px;height:18px;flex:none}
+.ing input:checked + span{color:var(--muted);text-decoration:line-through}
+.ing a{color:var(--basil);font-weight:400}
+.ing .grp{font-weight:700;padding:16px 0 4px;border-bottom:1px solid var(--line)}
+.steps{margin:0;padding:0;list-style:none;counter-reset:s;display:flex;flex-direction:column;gap:14px}
+.steps li{counter-increment:s;display:grid;grid-template-columns:2rem minmax(0,1fr);gap:8px}
+.steps li::before{content:attr(data-n);font-family:var(--display);font-weight:700;font-size:1.3rem;color:var(--basil);line-height:1.2}
+.steps b{font-weight:700}
+.steps li.grp{display:block;counter-increment:none;counter-reset:s;font-weight:700;padding-top:8px;border-bottom:1px solid var(--line);padding-bottom:4px}
+.steps li.grp::before{content:none}
+.note{background:var(--basil-soft);border-radius:10px;padding:12px 14px;font-size:.95rem}
+
+</style>
+
+<div class="wrap" id="app"></div>
+
+<script>
+// Data lives in the Recipe Box Google Sheet (Recipes tab, published as CSV). This page only displays it.
+const SHEET_CSV = "PASTE_YOUR_PUBLISHED_CSV_LINK_HERE";
+const CACHE_KEY = "recipeBoxCSV";
+let RECIPES = [];
+
+function parseCSV(t){
+  const rows = []; let row = [], f = "", q = false;
+  for (let i = 0; i < t.length; i++){
+    const c = t[i];
+    if (q){
+      if (c === '"'){ if (t[i+1] === '"'){ f += '"'; i++; } else q = false; }
+      else f += c;
+    } else if (c === '"') q = true;
+    else if (c === ","){ row.push(f); f = ""; }
+    else if (c === "\n" || c === "\r"){
+      if (c === "\r" && t[i+1] === "\n") i++;
+      row.push(f); rows.push(row); row = []; f = "";
+    } else f += c;
+  }
+  if (f !== "" || row.length){ row.push(f); rows.push(row); }
+  return rows;
+}
+const escT = s => String(s || "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const fmt = s => escT(s).replace(/\[\[([^|\]]+)\|([^\]]+)\]\]/g, '<a href="#$1">$2</a>').replace(/\*\*(.+?)\*\*/g, "<b>$1</b>");
+const lines = s => String(s || "").split(/\r?\n/).map(x => x.trim()).filter(Boolean);
+const slug = s => String(s).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+const yes = s => /^(yes|y|true|x|1)$/i.test(String(s || "").trim());
+
+function buildRecipes(rows){
+  if (!rows.length) return [];
+  const h = rows[0].map(x => x.trim().toLowerCase());
+  const col = name => h.indexOf(name);
+  const C = { name: col("name"), type: col("type"), fav: col("favorite"), kids: col("kids"), wtt: col("want to try"), seasons: col("seasons"), also: col("also shown on"), blurb: col("description"), ing: col("ingredients"), steps: col("steps"), facts: col("facts"), note: col("note"), credit: col("created by"), id: col("id") };
+  const g = (r, k) => C[k] >= 0 ? (r[C[k]] || "") : "";
+  return rows.slice(1).filter(r => g(r, "name").trim()).map(r => {
+    const facts = lines(g(r, "facts")).map(l => { const i = l.indexOf(": "); return i > 0 ? [escT(l.slice(0, i)), fmt(l.slice(i + 2))] : ["", fmt(l)]; });
+    if (g(r, "credit").trim()) facts.push(["Created by", escT(g(r, "credit").trim())]);
+    const seasons = g(r, "seasons").split(",").map(x => x.trim()).filter(Boolean);
+    return {
+      id: g(r, "id").trim() || slug(g(r, "name")),
+      name: escT(g(r, "name").trim()),
+      type: g(r, "type").trim() || "Dinner",
+      also: g(r, "also").split(",").map(x => x.trim()).filter(Boolean),
+      blurb: fmt(g(r, "blurb")),
+      facts,
+      ingredients: lines(g(r, "ing")).map(fmt),
+      steps: lines(g(r, "steps")).map(fmt),
+      note: fmt(g(r, "note").trim()),
+      seasons: seasons.length ? seasons : ["Year-round"],
+      fav: yes(g(r, "fav")), kids: yes(g(r, "kids")), untried: yes(g(r, "wtt"))
+    };
+  });
+}
+
+const HEART = '<svg class="heart" viewBox="0 0 24 24" aria-label="Favorite" role="img"><path d="M12 21s-7.5-4.6-9.6-9.2C.9 8.4 3 4.5 6.8 4.5c2.1 0 3.6 1.1 5.2 3 1.6-1.9 3.1-3 5.2-3 3.8 0 5.9 3.9 4.4 7.3C19.5 16.4 12 21 12 21z"/></svg>';
+const favMark = r => r.fav ? HEART : "";
+const seasonTags = r => (r.untried ? `<span class="tag new">Haven't tried</span>` : "") + r.seasons.map(x => `<span class="tag season">${x}</span>`).join("");
+const app = document.getElementById("app");
+let filter = "All", query = "", listY = 0;
+const types = ["All", "Favorites", "Dinner", "Snacks", "Dessert", "Kids", "Cocktails", "Temps", "Want to try"];
+const groupOf = r => r.type === "Temp" ? "Temps" : r.type === "Snack" ? "Snacks" : r.type === "Cocktail" ? "Cocktails" : r.type === "Dessert" ? "Dessert" : "Dinner";
+const ICON = p => `<svg viewBox="0 0 24 24" aria-hidden="true">${p}</svg>`;
+const ICONS = {
+  "All": ICON('<rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/>'),
+  "Favorites": ICON('<path d="M12 20s-7-4.3-8.9-8.6C1.7 8.3 3.6 5 7 5c2 0 3.4 1 5 2.8C13.6 6 15 5 17 5c3.4 0 5.3 3.3 3.9 6.4C19 15.7 12 20 12 20z"/>'),
+  "Snacks": ICON('<path d="M3 16c0-4.4 4-7.5 9-7.5s9 3.1 9 7.5z"/><path d="M8 11.5l-.8-1.8M12 10.5V8.5M16 11.5l.8-1.8"/>'),
+  "Kids": ICON('<circle cx="12" cy="13" r="7.5"/><path d="M9 15.5c.8.9 1.8 1.3 3 1.3s2.2-.4 3-1.3"/><circle cx="9.5" cy="12" r=".6"/><circle cx="14.5" cy="12" r=".6"/><path d="M10 5.8c.4-1.6 1.8-2.3 3.2-1.8"/>'),
+  "Cocktails": ICON('<path d="M4 4h16l-8 9z"/><path d="M12 13v7M8 20h8"/><circle cx="15" cy="7" r="1"/>'),
+  "Dessert": ICON('<path d="M6.5 12h11L16 20H8z"/><path d="M5 12a7 5.5 0 0 1 14 0"/><path d="M12 4.5V6.5"/>'),
+  "Temps": ICON('<path d="M10 4a2 2 0 0 1 4 0v10.3a4 4 0 1 1-4 0z"/><path d="M12 9v7"/><circle cx="12" cy="17.5" r="1.2"/>'),
+  "Want to try": ICON('<path d="M7 3.5h10v17l-5-3.8-5 3.8z"/>'),
+  "Dinner": ICON('<path d="M4 10h16v5a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5z"/><path d="M2 10h20M9.5 7c0-1.2 1-1.8 1-3M14 7c0-1.2 1-1.8 1-3"/>')
+};
+const SEASON_WORDS = ["summer","fall","autumn","winter","spring"];
+const esc = s => s.replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const strip = s => s.replace(/<[^>]+>/g, "");
+
+function home(){
+  app.innerHTML = `
+    <header class="top"><h1>Our Recipe Box</h1><p class="sub">The things we love to make, so we don't forget them.</p></header>
+    <div class="bar">
+      <form class="search" role="search" id="sform">
+        <svg class="mag" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>
+        <input type="search" id="q" placeholder="Search recipes" value="${esc(query)}" aria-label="Search recipes" autocomplete="off">
+        <button type="button" class="clear" id="clear" aria-label="Clear search"${query ? "" : " hidden"}><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+      </form>
+      <div class="catwrap" id="catwrap">
+        <button class="catarrow left" id="catl" type="button" aria-label="Scroll categories left"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button>
+        <nav class="cats" id="cats" aria-label="Categories">
+          ${types.map(t => `<button class="cat" data-t="${t}" aria-pressed="${t===filter}">${ICONS[t]}<span>${t}</span></button>`).join("")}
+        </nav>
+        <button class="catarrow right" id="catr" type="button" aria-label="Scroll categories right"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button>
+      </div>
+    </div>
+    <p class="count" id="count" aria-live="polite"></p>
+    <div class="grid" id="grid"></div>`;
+  const q = document.getElementById("q"), clear = document.getElementById("clear");
+  document.getElementById("sform").addEventListener("submit", e => { e.preventDefault(); q.blur(); });
+  q.addEventListener("input", e => { query = e.target.value; clear.hidden = !query; drawGrid(); });
+  clear.addEventListener("click", () => { query = ""; q.value = ""; clear.hidden = true; q.focus(); drawGrid(); });
+  const cats = document.getElementById("cats"), cw = document.getElementById("catwrap");
+  const edges = () => { const max = cats.scrollWidth - cats.clientWidth; cw.classList.toggle("more-left", cats.scrollLeft > 4); cw.classList.toggle("more-right", cats.scrollLeft < max - 4); };
+  cats.addEventListener("scroll", edges, { passive: true });
+  window.addEventListener("resize", edges);
+  document.getElementById("catl").addEventListener("click", () => cats.scrollBy({ left: -cats.clientWidth * 0.6 }));
+  document.getElementById("catr").addEventListener("click", () => cats.scrollBy({ left: cats.clientWidth * 0.6 }));
+  const active = cats.querySelector('[aria-pressed="true"]');
+  if (active && active.offsetLeft + active.offsetWidth > cats.clientWidth) cats.scrollLeft = active.offsetLeft - 40;
+  edges(); requestAnimationFrame(edges);
+  app.querySelectorAll(".cat").forEach(b => b.addEventListener("click", () => {
+    filter = b.dataset.t;
+    app.querySelectorAll(".cat").forEach(x => x.setAttribute("aria-pressed", x.dataset.t === filter));
+    drawGrid();
+  }));
+  drawGrid();
+}
+
+function drawGrid(){
+  const g = document.getElementById("grid");
+  const ql = query.trim().toLowerCase();
+  const list = RECIPES.filter(r => (filter === "All" || (filter === "Want to try" ? r.untried : filter === "Favorites" ? r.fav : filter === "Kids" ? r.kids : (groupOf(r) === filter || (r.also || []).includes(filter)))) &&
+    (!ql || (r.name + " " + r.type + " " + r.blurb + " " + r.seasons.join(" ") + (SEASON_WORDS.some(w => w.startsWith(ql)) && r.seasons.includes("Year-round") ? " summer fall autumn winter spring" : "") + " " + r.ingredients.map(strip).join(" ")).toLowerCase().includes(ql)));
+  g.innerHTML = list.length ? list.map(r => `
+    <button class="card" data-id="${r.id}">
+      <div class="meta"><span class="tag">${r.type}</span>${seasonTags(r)}</div>
+      <h2>${r.name}${favMark(r)}</h2>
+      <p>${r.blurb}</p>
+      <div class="meta">${r.type === "Temp" ? "Temp guide" : `${r.ingredients.filter(i => !i.startsWith("## ")).length} ingredients · ${r.steps.filter(s => !s.startsWith("## ")).length} steps`}</div>
+    </button>`).join("") : `<p class="empty">${filter === "Want to try" && !ql ? "Nothing here yet. New recipes we haven't made land here until we try them and they're good." : filter === "Kids" && !ql ? "No kid picks yet. Recipes the kids love land here." : filter === "Favorites" && !ql ? "No favorites yet. Our go-tos get a heart and show up here." : filter === "Dessert" && !ql ? "No desserts yet. Send one over and it lands here." : "Nothing matches that search."}</p>`;
+  const n = list.length, word = n === 1 ? "recipe" : "recipes";
+  document.getElementById("count").textContent = ql ? `${n} ${word} for "${query.trim()}"` : `${n} ${word}`;
+  g.querySelectorAll(".card").forEach(c => c.addEventListener("click", () => { listY = window.scrollY; location.hash = c.dataset.id; }));
+}
+
+function cook(r){
+  app.innerHTML = `
+    <button class="back" id="back">← All recipes</button>
+    <div class="head">
+      <div class="meta"><span class="tag">${r.type}</span>${seasonTags(r)}</div>
+      <h2>${r.name}${favMark(r)}</h2>
+      <div class="facts">${r.facts.map(([k,v]) => `<span>${k}: <b>${v}</b></span>`).join("")}</div>
+    </div>
+    <div class="cols">
+      <section><div class="sechead"><h3>${r.type === "Temp" ? "Temps and times" : "Ingredients"}</h3><button class="copy" id="copy" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg><span>Copy</span></button></div><ul class="ing">${r.ingredients.map((i,n) => i.startsWith("## ") ? `<li class="grp">${i.slice(3)}</li>` : `<li><label><input type="checkbox" id="${r.id}-i${n}"><span>${i}</span></label></li>`).join("")}</ul></section>
+      <section><div class="sechead"><h3>How to make it</h3><button class="copy" id="copysteps" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg><span>Copy</span></button></div><ol class="steps">${(() => { let n = 0; return r.steps.map(s => s.startsWith("## ") ? (n = 0, `<li class="grp">${s.slice(3)}</li>`) : `<li data-n="${++n}"><span>${s}</span></li>`).join(""); })()}</ol>
+      ${r.note ? `<p class="note">${r.note}</p>` : ""}</section>
+    </div>`;
+  document.getElementById("back").addEventListener("click", () => { history.length > 1 ? (location.hash = "") : (location.hash = ""); });
+  const clean = h => strip(h).replace(/&amp;/g, "&").replace(/&quot;/g, '"');
+  const copyText = (btn, text) => {
+    const label = btn.querySelector("span");
+    const done = () => { btn.classList.add("done"); label.textContent = "Copied"; setTimeout(() => { btn.classList.remove("done"); label.textContent = "Copy"; }, 2000); };
+    const fallback = () => {
+      const t = document.createElement("textarea"); t.value = text; t.setAttribute("readonly", ""); t.style.position = "fixed"; t.style.opacity = "0"; document.body.appendChild(t); t.select();
+      let ok = false; try { ok = document.execCommand("copy"); } catch(e) {}
+      t.remove(); ok ? done() : (label.textContent = "Couldn't copy");
+    };
+    try { navigator.clipboard.writeText(text).then(done, fallback); } catch(e) { fallback(); }
+  };
+  document.getElementById("copy").addEventListener("click", e => {
+    const text = r.name + "\n\nIngredients\n" + r.ingredients.map(i => i.startsWith("## ") ? "\n" + clean(i.slice(3)) + ":" : "- " + clean(i)).join("\n") + "\n";
+    copyText(e.currentTarget, text);
+  });
+  document.getElementById("copysteps").addEventListener("click", e => {
+    let n = 0;
+    const text = r.name + "\n\nHow to make it\n" + r.steps.map(st => st.startsWith("## ") ? (n = 0, "\n" + clean(st.slice(3)) + ":") : (++n) + ". " + clean(st)).join("\n") + (r.note ? "\n\nNote: " + clean(r.note) : "") + "\n";
+    copyText(e.currentTarget, text);
+  });
+  window.scrollTo(0,0);
+}
+
+function route(){
+  const id = location.hash.slice(1);
+  const r = RECIPES.find(x => x.id === id);
+  if (r) { cook(r); } else { home(); requestAnimationFrame(() => window.scrollTo(0, listY)); }
+}
+
+window.addEventListener("hashchange", route);
+
+let lastKey = "";
+function load(rows){
+  if (!rows || !rows.length) return false;
+  const key = JSON.stringify(rows);
+  if (key === lastKey) return true;
+  const list = buildRecipes(rows);
+  if (!list.length) return false;
+  lastKey = key; RECIPES = list; route();
+  try { localStorage.setItem(CACHE_KEY, key); } catch (e) {}
+  return true;
+}
+(async () => {
+  let cached = null;
+  try { cached = JSON.parse(localStorage.getItem(CACHE_KEY) || "null"); } catch (e) {}
+  if (!(cached && load(cached))) app.innerHTML = '<header class="top"><h1>Our Recipe Box</h1><p class="sub">Loading recipes...</p></header>';
+  let ok = false;
+  try {
+    const res = await fetch(SHEET_CSV, { cache: "no-store" });
+    if (!res.ok) throw new Error(res.status);
+    ok = load(parseCSV(await res.text()));
+  } catch (e) {}
+  if (!ok) {
+    if (!RECIPES.length) app.innerHTML = '<header class="top"><h1>Our Recipe Box</h1><p class="sub">The recipes couldn\'t load right now. Check your connection and refresh.</p></header>';
+  }
+})();
+</script>
+
+
+</body>
+</html>
